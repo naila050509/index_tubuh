@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator BMI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .unit-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .unit-btn {
+            padding: 10px 30px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .unit-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.2em;
+            transition: border 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .unit {
+            color: #666;
+            font-size: 1.1em;
+            min-width: 30px;
+        }
+
+        .gender-selection {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .gender-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .gender-btn:hover {
+            border-color: #667eea;
+        }
+
+        .gender-btn.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .gender-icon {
+            font-size: 2em;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bmi-value {
+            text-align: center;
+            font-size: 4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #667eea;
+        }
+
+        .bmi-category {
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .category-underweight {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .category-normal {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .category-overweight {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .category-obese {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .bmi-description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .bmi-chart {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .chart-bar {
+            display: flex;
+            height: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .chart-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .segment-underweight {
+            background: #1976d2;
+            width: 25%;
+        }
+
+        .segment-normal {
+            background: #388e3c;
+            width: 25%;
+        }
+
+        .segment-overweight {
+            background: #f57c00;
+            width: 25%;
+        }
+
+        .segment-obese {
+            background: #d32f2f;
+            width: 25%;
+        }
+
+        .bmi-indicator {
+            display: none;
+            text-align: center;
+            font-size: 2em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        .chart-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .ideal-weight {
+            background: #e8f5e9;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .ideal-weight-title {
+            font-weight: 600;
+            color: #388e3c;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .ideal-weight-value {
+            font-size: 1.3em;
+            color: #333;
+        }
+
+        .health-tips {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .tips-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .tips-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .tips-list li {
+            padding: 10px 0;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .tips-list li:before {
+            content: "✓ ";
+            color: #388e3c;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .bmi-value {
+                font-size: 3em;
+            }
+
+            .chart-segment {
+                font-size: 0.7em;
+            }
+
+            .chart-labels {
+                font-size: 0.75em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Kalkulator BMI</h1>
+        <p class="subtitle">Hitung Indeks Massa Tubuh Anda</p>
+
+        <div class="unit-toggle">
+            <button class="unit-btn active" onclick="setUnit('metric')">Metrik</button>
+            <button class="unit-btn" onclick="setUnit('imperial')">Imperial</button>
+        </div>
+
+        <div class="gender-selection">
+            <div class="gender-btn" onclick="selectGender('male')">
+                <span class="gender-icon">👨</span>
+                <span>Pria</span>
+            </div>
+            <div class="gender-btn" onclick="selectGender('female')">
+                <span class="gender-icon">👩</span>
+                <span>Wanita</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="height">Tinggi Badan</label>
+            <div class="input-wrapper">
+                <input type="number" id="height" placeholder="170" step="0.1">
+                <span class="unit" id="heightUnit">cm</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="weight">Berat Badan</label>
+            <div class="input-wrapper">
+                <input type="number" id="weight" placeholder="70" step="0.1">
+                <span class="unit" id="weightUnit">kg</span>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="age">Usia (opsional)</label>
+            <div class="input-wrapper">
+                <input type="number" id="age" placeholder="25" min="1" max="120">
+                <span class="unit">tahun</span>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateBMI()">Hitung BMI</button>
+
+        <div class="result" id="result">
+            <div class="bmi-value" id="bmiValue"></div>
+            <div class="bmi-category" id="bmiCategory"></div>
+            <div class="bmi-description" id="bmiDescription"></div>
+
+            <div class="bmi-chart">
+                <div class="chart-title">Rentang BMI</div>
+                <div class="chart-bar">
+                    <div class="chart-segment segment-underweight">&lt;18.5</div>
+                    <div class="chart-segment segment-normal">18.5-24.9</div>
+                    <div class="chart-segment segment-overweight">25-29.9</div>
+                    <div class="chart-segment segment-obese">≥30</div>
+                </div>
+                <div class="bmi-indicator" id="bmiIndicator">▲</div>
+                <div class="chart-labels">
+                    <span>Kurus</span>
+                    <span>Normal</span>
+                    <span>Gemuk</span>
+                    <span>Obesitas</span>
+                </div>
+            </div>
+
+            <div class="ideal-weight" id="idealWeight"></div>
+
+            <div class="health-tips" id="healthTips"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentUnit = 'metric';
+        let selectedGender = null;
+
+        function setUnit(unit) {
+            currentUnit = unit;
+            
+            document.querySelectorAll('.unit-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            if (unit === 'metric') {
+                document.getElementById('heightUnit').textContent = 'cm';
+                document.getElementById('weightUnit').textContent = 'kg';
+                document.getElementById('height').placeholder = '170';
+                document.getElementById('weight').placeholder = '70';
+            } else {
+                document.getElementById('heightUnit').textContent = 'in';
+                document.getElementById('weightUnit').textContent = 'lbs';
+                document.getElementById('height').placeholder = '67';
+                document.getElementById('weight').placeholder = '154';
+            }
+        }
+
+        function selectGender(gender) {
+            selectedGender = gender;
+            document.querySelectorAll('.gender-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            event.target.closest('.gender-btn').classList.add('selected');
+        }
+
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const age = parseInt(document.getElementById('age').value);
+
+            if (!height || !weight || height <= 0 || weight <= 0) {
+                alert('Mohon masukkan tinggi dan berat badan yang valid!');
+                return;
+            }
+
+            let bmi;
+            let heightInMeters;
+
+            if (currentUnit === 'metric') {
+                heightInMeters = height / 100;
+                bmi = weight / (heightInMeters * heightInMeters);
+            } else {
+                bmi = (weight / (height * height)) * 703;
+                heightInMeters = height * 0.0254;
+            }
+
+            displayResult(bmi, height, weight, heightInMeters, age);
+        }
+
+        function displayResult(bmi, height, weight, heightInMeters, age) {
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+
+            const categoryEl = document.getElementById('bmiCategory');
+            const descriptionEl = document.getElementById('bmiDescription');
+            const indicatorEl = document.getElementById('bmiIndicator');
+
+            let category, description, categoryClass, indicatorPosition;
+
+            if (bmi < 18.5) {
+                category = 'Kurus (Underweight)';
+                description = 'BMI Anda berada di bawah rentang normal. Pertimbangkan untuk meningkatkan asupan nutrisi dan berkonsultasi dengan ahli gizi.';
+                categoryClass = 'category-underweight';
+                indicatorPosition = (bmi / 18.5) * 25;
+            } else if (bmi >= 18.5 && bmi < 25) {
+                category = 'Normal (Healthy Weight)';
+                description = 'Selamat! BMI Anda berada dalam rentang yang sehat. Pertahankan pola hidup sehat Anda.';
+                categoryClass = 'category-normal';
+                indicatorPosition = 25 + ((bmi - 18.5) / (24.9 - 18.5)) * 25;
+            } else if (bmi >= 25 && bmi < 30) {
+                category = 'Gemuk (Overweight)';
+                description = 'BMI Anda sedikit di atas rentang normal. Pertimbangkan untuk meningkatkan aktivitas fisik dan mengatur pola makan.';
+                categoryClass = 'category-overweight';
+                indicatorPosition = 50 + ((bmi - 25) / (29.9 - 25)) * 25;
+            } else {
+                category = 'Obesitas (Obese)';
+                description = 'BMI Anda berada dalam kategori obesitas. Sangat disarankan untuk berkonsultasi dengan dokter atau ahli gizi.';
+                categoryClass = 'category-obese';
+                indicatorPosition = 75 + Math.min(((bmi - 30) / 10) * 25, 24);
+            }
+
+            categoryEl.textContent = category;
+            categoryEl.className = `bmi-category ${categoryClass}`;
+            descriptionEl.textContent = description;
+
+            indicatorEl.style.display = 'block';
+            indicatorEl.style.marginLeft = `calc(${indicatorPosition}% - 15px)`;
+
+            displayIdealWeight(heightInMeters);
+            displayHealthTips(bmi, age);
+
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function displayIdealWeight(heightInMeters) {
+            const idealBMI = 22;
+            const idealWeight = idealBMI * (heightInMeters * heightInMeters);
+            const minWeight = 18.5 * (heightInMeters * heightInMeters);
+            const maxWeight = 24.9 * (heightInMeters * heightInMeters);
+
+            const unit = currentUnit === 'metric' ? 'kg' : 'lbs';
+            const minWeightDisplay = currentUnit === 'metric' ? minWeight : minWeight * 2.20462;
+            const maxWeightDisplay = currentUnit === 'metric' ? maxWeight : maxWeight * 2.20462;
+            const idealWeightDisplay = currentUnit === 'metric' ? idealWeight : idealWeight * 2.20462;
+
+            document.getElementById('idealWeight').innerHTML = `
+                <div class="ideal-weight-title">💚 Berat Badan Ideal Anda</div>
+                <div class="ideal-weight-value">
+                    Rentang: ${minWeightDisplay.toFixed(1)} - ${maxWeightDisplay.toFixed(1)} ${unit}<br>
+                    Ideal: ${idealWeightDisplay.toFixed(1)} ${unit}
+                </div>
+            `;
+        }
+
+        function displayHealthTips(bmi, age) {
+            let tips = [];
+
+            if (bmi < 18.5) {
+                tips = [
+                    'Konsumsi makanan bergizi dengan kalori yang cukup',
+                    'Tambahkan protein dalam setiap makan',
+                    'Makan lebih sering dengan porsi kecil',
+                    'Latihan kekuatan untuk membangun massa otot',
+                    'Konsultasi dengan ahli gizi untuk program penambahan berat badan'
+                ];
+            } else if (bmi >= 18.5 && bmi < 25) {
+                tips = [
+                    'Pertahankan pola makan seimbang',
+                    'Olahraga teratur minimal 150 menit per minggu',
+                    'Konsumsi sayur dan buah secukupnya',
+                    'Tidur cukup 7-9 jam per hari',
+                    'Kelola stress dengan baik'
+                ];
+            } else if (bmi >= 25 && bmi < 30) {
+                tips = [
+                    'Kurangi asupan kalori secara bertahap',
+                    'Tingkatkan aktivitas fisik harian',
+                    'Hindari makanan tinggi gula dan lemak jenuh',
+                    'Perbanyak konsumsi serat dan protein',
+                    'Monitor berat badan secara berkala'
+                ];
+            } else {
+                tips = [
+                    'Konsultasi dengan dokter atau ahli gizi',
+                    'Buat program penurunan berat badan yang terstruktur',
+                    'Mulai dengan aktivitas fisik ringan secara rutin',
+                    'Ubah pola makan secara bertahap',
+                    'Cari dukungan dari keluarga atau komunitas'
+                ];
+            }
+
+            if (age && age > 60) {
+                tips.push('Perhatikan kesehatan tulang dan sendi');
+                tips.push('Konsultasi rutin dengan dokter');
+            }
+
+            const tipsHTML = tips.map(tip => `<li>${tip}</li>`).join('');
+            document.getElementById('healthTips').innerHTML = `
+                <div class="tips-title">💡 Saran Kesehatan</div>
+                <ul class="tips-list">${tipsHTML}</ul>
+            `;
+        }
+
+        document.getElementById('height').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateBMI();
+        });
+
+        document.getElementById('weight').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateBMI();
+        });
+
+        document.getElementById('age').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateBMI();
+        });
+    </script>
+</body>
+</html>
